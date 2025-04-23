@@ -9,6 +9,7 @@ import filetype
 from config_hiden import API_TOKEN
 from pack.date_lib import *
 import logging
+from pack.file_lib import *
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
@@ -32,23 +33,6 @@ dp = Dispatcher()
 @dp.message(Command("start"))
 async def send_welcome(message: Message):
     await message.answer("Привет! Отправь мне файл, и я сохраню его.")
-
-# Обработчик для документов
-#@dp.message(F.document)
-async def handle_document(message: Message):
-    # Получаем информацию о документе
-    document = message.document
-    file_id = document.file_id
-    file_name = document.file_name
-
-    # Формируем путь для сохранения файла
-    file_path = os.path.join(DOWNLOADS_DIR, file_name)
-
-    # Скачиваем файл
-    await bot.download(file_id, destination=file_path)
-
-    # Отправляем подтверждение пользователю
-    await message.answer(f"Файл '{file_name}' успешно сохранен!")
 
 # Обработчик для других типов сообщений (опционально)
 @dp.message()
@@ -81,7 +65,14 @@ async def handle_other_messages(message: Message):
             file_name = f"video_note_{file_id}.mp4"
             prefix='video_note_'
         else:
-            message.reply("Пожалуйста, отправьте файл.")
+            if message.text!=None:
+                #print(message.text)
+                # Расширение файла не известно
+                file_name_txt = genfname(pref='txt_', postf='.txt')
+                # Формируем путь для сохранения файла
+                file_path_txt = os.path.join(DOWNLOADS_DIR, file_name_txt)                
+                write_file(fname=file_path_txt, text=message.text, e='utf8')
+            await message.reply("Пожалуйста, отправьте файл.")
             return    
         
         # Расширение файла не известно
