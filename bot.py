@@ -84,7 +84,7 @@ async def handle_other_messages(message: Message):
             message.reply("Пожалуйста, отправьте файл.")
             return    
         
-        # расширение файла не известно
+        # Расширение файла не известно
         file_name = genfname(pref=prefix, postf='.bin')
         
         # Формируем путь для сохранения файла
@@ -93,8 +93,9 @@ async def handle_other_messages(message: Message):
         # Скачиваем файл
         await bot.download(file_id, destination=file_path)
         
+        # Получаем расширение файла
         kind = filetype.guess(file_path)
-        #print('ext=', str(kind.extension))
+        
         ok_msg = f"Файл '{file_name}' успешно сохранен!"
         if kind != None:
             file_path_new = file_path.replace('.bin', '.'+ kind.extension)
