@@ -6,7 +6,7 @@ from aiogram.utils.token import TokenValidationError
 from aiogram import F
 #from pack.file_lib import *
 import filetype
-from config_hiden import API_TOKEN
+from config_hiden import *
 from pack.date_lib import *
 import logging
 from pack.file_lib import *
@@ -38,6 +38,11 @@ async def send_welcome(message: Message):
 @dp.message()
 async def handle_other_messages(message: Message):
     try:
+        print(message)
+        if message.chat.type != "private":
+            # Не отвечаем на сообщения из групп и каналов
+            print("Не отвечаем на сообщения из групп и каналов")
+            return
         # В зависимости от типа файла получаем разные атрибуты
         if message.document:
         #    file = message.document        
@@ -72,7 +77,7 @@ async def handle_other_messages(message: Message):
                 # Формируем путь для сохранения файла
                 file_path_txt = os.path.join(DOWNLOADS_DIR, file_name_txt)                
                 write_file(fname=file_path_txt, text=message.text, e='utf8')
-            await message.reply("Пожалуйста, отправьте файл.")
+                await message.reply( f"Текст сохранён в {file_name_txt}")
             return    
         
         # Расширение файла не известно
