@@ -1,11 +1,16 @@
 from time import gmtime, strftime
 import datetime
+import random, string
+
+def randomword(length=10):
+   letters = string.ascii_lowercase
+   return ''.join(random.choice(letters) for i in range(length))
 
 def currdate(fm = "%Y-%m-%d-%H-%M-%S"):
     return strftime(fm, gmtime())
 
 def genfname(pref="rep", postf=".csv"):
-    return pref + datetime.datetime.now().strftime( "%Y%m%d-%H%M%S" ) + postf
+    return pref + datetime.datetime.now().strftime( "%Y%m%d-%H%M%S" ) + randomword() + postf
 
 # dd.mm.yyyy => yyyy-mm-dd
 def format_date_db(s):

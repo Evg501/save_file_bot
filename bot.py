@@ -6,10 +6,13 @@ from aiogram.utils.token import TokenValidationError
 from aiogram import F
 #from pack.file_lib import *
 import filetype
+from config import *
 from config_hiden import *
 from pack.date_lib import *
 import logging
 from pack.file_lib import *
+from pack.async_lib import *
+from pack.bot_lib import *
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
@@ -20,7 +23,7 @@ logger.info("Бот запущен и готов к работе")
 #API_TOKEN = ''
 
 # Укажите путь к папке, куда будут сохраняться файлы
-DOWNLOADS_DIR = './downloads'
+#DOWNLOADS_DIR = './downloads'
 
 # Создаем папку для загрузок, если она не существует
 os.makedirs(DOWNLOADS_DIR, exist_ok=True)
@@ -47,26 +50,32 @@ async def handle_other_messages(message: Message):
         if message.document:
         #    file = message.document        
             file_id = message.document.file_id
+            file_size = message.document.file_size
             file_name = message.document.file_name or f"document_{file_id}"
             prefix='document_'
         elif message.photo:
             file_id = message.photo[-1].file_id  # Берем последнее (самое высокое) фото
+            file_size = message.photo[-1].file_size
             file_name = f"photo_{file_id}.jpg"
             prefix='photo_'
         elif message.video:
             file_id = message.video.file_id
+            file_size = message.video.file_size
             file_name = message.video.file_name or f"video_{file_id}.mp4"
             prefix='video_'
         elif message.audio:
             file_id = message.audio.file_id
+            file_size = message.audio.file_size
             file_name = message.audio.file_name or f"audio_{file_id}.mp3"
             prefix='audio_'
         elif message.voice:
             file_id = message.voice.file_id
+            file_size = message.voice.file_size
             file_name = f"voice_{file_id}.ogg"
             prefix='voice_'
         elif message.video_note:
             file_id = message.video_note.file_id
+            file_size = message.video_note.file_size
             file_name = f"video_note_{file_id}.mp4"
             prefix='video_note_'
         else:
@@ -79,29 +88,15 @@ async def handle_other_messages(message: Message):
                 write_file(fname=file_path_txt, text=message.text, e='utf8')
                 await message.reply( f"Текст сохранён в {file_name_txt}")
             return    
-        
-        # Расширение файла не известно
-        file_name = genfname(pref=prefix, postf='.bin')
-        
-        # Формируем путь для сохранения файла
-        file_path = os.path.join(DOWNLOADS_DIR, file_name)
-        
-        # Скачиваем файл
-        await bot.download(file_id, destination=file_path)
-        
-        # Получаем расширение файла
-        kind = filetype.guess(file_path)
-        
-        ok_msg = f"Файл '{file_name}' успешно сохранен!"
-        if kind != None:
-            file_path_new = file_path.replace('.bin', '.'+ kind.extension)
-            os.rename(file_path, file_path_new)
-            file_name = file_name.replace('.bin', '.'+ kind.extension)
-            ok_msg = f"Файл '{file_name}' успешно сохранен!"
-            print(ok_msg)
-            
-        # Отправляем подтверждение пользователю
-        await message.answer(ok_msg)
+
+        ok_msg = await save_file(bot, prefix, file_id, file_size)
+               
+        if ok_msg['result']==True:
+            # Отправляем подтверждение пользователю
+            await message.answer(ok_msg['msg'])
+        else:
+            print(ok_msg['msg'])
+            await message.answer('Ошибка')
 
     except Exception as e:
         logger.error(f"Ошибка при обработке файла: {e}")
