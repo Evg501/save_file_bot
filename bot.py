@@ -38,7 +38,7 @@ async def send_welcome(message: Message):
 @dp.message()
 async def handle_other_messages(message: Message):
     try:
-        print(message)
+        #print(message)
         if message.chat.type != "private":
             # Не отвечаем на сообщения из групп и каналов
             print("Не отвечаем на сообщения из групп и каналов")
