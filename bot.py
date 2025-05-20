@@ -86,6 +86,7 @@ async def handle_other_messages(message: Message):
                 # Формируем путь для сохранения файла
                 file_path_txt = os.path.join(DOWNLOADS_DIR, file_name_txt)                
                 write_file(fname=file_path_txt, text=message.text, e='utf8')
+                print(f"Текст сохранён в {file_name_txt}")
                 await message.reply( f"Текст сохранён в {file_name_txt}")
             return    
 
