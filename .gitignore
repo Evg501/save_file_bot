@@ -1,5 +1,4 @@
 downloads/
 config_hiden.py
 __pycache__
-temp/compare_msg.txt
-temp/compare_msg2.txt
+temp/

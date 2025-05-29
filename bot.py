@@ -46,6 +46,7 @@ async def handle_other_messages(message: Message):
             # Не отвечаем на сообщения из групп и каналов
             print("Не отвечаем на сообщения из групп и каналов")
             return
+        is_file = True
         # В зависимости от типа файла получаем разные атрибуты
         if message.document:
         #    file = message.document        
@@ -79,25 +80,30 @@ async def handle_other_messages(message: Message):
             file_name = f"video_note_{file_id}.mp4"
             prefix='video_note_'
         else:
-            if message.text!=None:
-                #print(message.text)
-                # Расширение файла не известно
-                file_name_txt = genfname(pref='txt_', postf='.txt')
-                # Формируем путь для сохранения файла
-                file_path_txt = os.path.join(DOWNLOADS_DIR, file_name_txt)                
-                write_file(fname=file_path_txt, text=message.text, e='utf8')
-                print(f"Текст сохранён в {file_name_txt}")
-                await message.reply( f"Текст сохранён в {file_name_txt}")
-            return    
+            is_file = False
 
-        ok_msg = await save_file(bot, prefix, file_id, file_size)
-               
-        if ok_msg['result']==True:
-            # Отправляем подтверждение пользователю
-            await message.answer(ok_msg['msg'])
-        else:
-            print(ok_msg['msg'])
-            await message.answer('Ошибка')
+        # save text
+        if message.text!=None or message.caption!=None:
+            #print(message.text)
+            # Расширение файла не известно
+            file_name_txt = genfname(pref='txt_', postf='.txt')
+            # Формируем путь для сохранения файла
+            file_path_txt = os.path.join(DOWNLOADS_DIR, file_name_txt)                
+            write_file(fname=file_path_txt, text=str(message.text)+str(message.caption), e='utf8')
+            print(f"Текст сохранён в {file_name_txt}")
+            await message.reply( f"Текст сохранён в {file_name_txt}")
+            #return  
+
+        # save file  
+        if is_file:
+            ok_msg = await save_file(bot, prefix, file_id, file_size)
+                
+            if ok_msg['result']==True:
+                # Отправляем подтверждение пользователю
+                await message.answer(ok_msg['msg'])
+            else:
+                print(ok_msg['msg'])
+                await message.answer('Ошибка')
 
     except Exception as e:
         logger.error(f"Ошибка при обработке файла: {e}")
