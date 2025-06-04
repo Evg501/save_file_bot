@@ -88,8 +88,16 @@ async def handle_other_messages(message: Message):
             # Расширение файла не известно
             file_name_txt = genfname(pref='txt_', postf='.txt')
             # Формируем путь для сохранения файла
-            file_path_txt = os.path.join(DOWNLOADS_DIR, file_name_txt)                
-            write_file(fname=file_path_txt, text=str(message.text)+str(message.caption), e='utf8')
+            file_path_txt = os.path.join(DOWNLOADS_DIR, file_name_txt)         
+            if message.text == None:
+                msg_text = ''
+            else:
+                msg_text = message.text
+            if message.caption == None:
+                msg_cap = ''
+            else:
+                msg_cap = message.caption
+            write_file(fname=file_path_txt, text=str(msg_text)+str(msg_cap), e='utf8')
             print(f"Текст сохранён в {file_name_txt}")
             await message.reply( f"Текст сохранён в {file_name_txt}")
             #return  
