@@ -13,6 +13,7 @@ import logging
 from pack.file_lib import *
 from pack.async_lib import *
 from pack.bot_lib import *
+from rich import print
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
@@ -44,7 +45,7 @@ async def handle_other_messages(message: Message):
         #print(message)
         if message.chat.type != "private":
             # Не отвечаем на сообщения из групп и каналов
-            print("Не отвечаем на сообщения из групп и каналов")
+            print('[grey53]'+"Не отвечаем на сообщения из групп и каналов")
             return
         is_file = True
         # В зависимости от типа файла получаем разные атрибуты
@@ -89,8 +90,10 @@ async def handle_other_messages(message: Message):
             file_name_txt = genfname(pref='txt_', postf='.txt')
             # Формируем путь для сохранения файла
             file_path_txt = os.path.join(DOWNLOADS_DIR, file_name_txt)         
-            write_file(fname=file_path_txt, text=str(message.text or '') + str(message.caption or ''), e='utf8')
-            print(f"Текст сохранён в {file_name_txt}")
+            #write_file(fname=file_path_txt, text=str(message.text or '') + str(message.caption or ''), e='utf8')
+            write_file(fname=file_path_txt, text=f"{message.text or ''}{message.caption or ''}", e='utf8')
+            print('[deep_pink4]'+f"Текст сохранён в {file_name_txt}")
+            print('[spring_green4]' + f"{message.text or ''}{message.caption or ''}")
             await message.reply( f"Текст сохранён в {file_name_txt}")
             #return  
 
@@ -102,7 +105,7 @@ async def handle_other_messages(message: Message):
                 # Отправляем подтверждение пользователю
                 await message.answer(ok_msg['msg'])
             else:
-                print(ok_msg['msg'])
+                print('[green]'+ok_msg['msg'])
                 await message.answer('Ошибка')
 
     except Exception as e:
@@ -114,9 +117,9 @@ async def main():
     try:
         await dp.start_polling(bot)
     except TokenValidationError:
-        print("Ошибка: Неверный токен бота.")
+        print('[red]' + "Ошибка: Неверный токен бота.")
     except Exception as e:
-        print(f"Произошла ошибка: {e}")
+        print('[red]'+ f"Произошла ошибка: {e}")
 
 if __name__ == '__main__':
     import asyncio
